@@ -79,7 +79,7 @@ def createTable(file1, file2):
     # Connecting with mysql database on local machine
 
     conn = mysqlconnect.connect(
-        host='localhost', user='root', password='mysqltmnttp10D@T')
+        host='localhost', user='root', password='password')  # Enter password of root user here
 
     cursor = conn.cursor()
 
@@ -117,7 +117,7 @@ def query1():
     "Performs a given query"
 
     connector = mysqlconnect.connect(
-        host='localhost', user='root', password='mysqltmnttp10D@T')
+        host='localhost', user='root', password='password')  # Enter password of root user here
 
     cursor = connector.cursor()
 
@@ -140,7 +140,7 @@ def query2():
     "Performs a given query"
 
     connector = mysqlconnect.connect(
-        host='localhost', user='root', password='mysqltmnttp10D@T')
+        host='localhost', user='root', password='password')  # Enter password of root user here
 
     cursor = connector.cursor()
 
@@ -163,7 +163,7 @@ def query3():
     "Performs a given query"
 
     connector = mysqlconnect.connect(
-        host='localhost', user='root', password='mysqltmnttp10D@T')
+        host='localhost', user='root', password='password')  # Enter password of root user here
 
     cursor = connector.cursor()
 
@@ -216,7 +216,7 @@ def modifyTable(file1, file2):
     # Connecting with mysql database on local machine
 
     conn = mysqlconnect.connect(
-        host='localhost', user='root', password='mysqltmnttp10D@T')
+        host='localhost', user='root', password='password')  # Enter password of root user here
 
     cursor = conn.cursor()
 
@@ -263,11 +263,14 @@ createTable(file1.copy(), file2)
 query1()
 
 # Source Code for query no.2
-# This uses a method similar to web-scraping to access each dataset for the last 5 days
+# This uses a method similar to web-scraping to access each dataset for the last 30 days
+# We progressively decrease the date and day and procure the bhavcopy csv file
+# excluding Saturdays and Sundays
 
 month = "DEC"
 date = 9
-dayCount = 5
+dayCount = 30
+day = 5
 
 urlFront = "https://archives.nseindia.com/content/historical/EQUITIES/2022/"
 urlEnd = "2022bhav.csv.zip"
@@ -280,14 +283,15 @@ while (dayCount):
 
     endpoint = urlFront + month + "/" + "cm" + date_str + month + urlEnd
 
-    dataset = pd.read_csv(endpoint)
-    data = pd.DataFrame(dataset)
+    if (day > 0 and day < 6):
+        dataset = pd.read_csv(endpoint)
+        data = pd.DataFrame(dataset)
 
-    # Modifying the table in our database to perform further queries
-    modifyTable(file1.copy(), data)
+        # Modifying the table in our database to perform further queries
+        modifyTable(file1.copy(), data)
 
-    # Calling query1 function to perform query no. 2
-    query2()
+        # Calling query1 function to perform query no. 2
+        query2()
 
     date -= 1
     if (date == 0):
@@ -295,6 +299,11 @@ while (dayCount):
         month = "NOV"
 
     dayCount -= 1
+
+    day -= 1
+    if (day < 0):
+        day = 6
+
 
 # Calling query3 function to perform query no. 3
 query3()
